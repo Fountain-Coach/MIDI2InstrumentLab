@@ -43,6 +43,19 @@ Scheduling
 2) Event pass: deliver MIDI 2 events for the current audio quantum (e.g., 128/256 samples @ 48 kHz).
 3) Audio pass: produce audio buffers by invoking node kernels (CPU or GPU) with sample‑accurate offsets.
 
+ASCII Graph Sketch
+
+```
+ [ControllerNode]──(event)──▶[InstrumentNode]──(audio)──▶[EffectNode]──(audio)──▶[Master]
+                          ▲                  
+           (PE set/get)───┘   (per-note lanes, GPU voice kernels)
+
+Ports (examples):
+  ControllerNode: event.out
+  InstrumentNode: event.in, audio.out, property.in
+  EffectNode:     audio.in, audio.out
+```
+
 Clocks & Transport
 - Single logical clock with tempo/meter; quantized loop region; wall‑clock → sample position mapping.
 - Ensure event timestamps (UMP) align to sample boundaries within a tolerance.
@@ -94,6 +107,23 @@ Timing
 Vulkan Parity (SDLKit)
 - Replace SharedEvent with timeline semaphore.
 - Mirror pipelines & descriptor sets. Keep per‑quantum command buffer recording with pool resets for predictable latency.
+
+ASCII Timeline (per audio quantum)
+
+```
+Time ───────────────────────────────────────────────────────────────────────────→
+
+CPU Audio Callback:
+  [Submit Q(n-1) → Wait Q(n-2) ✓] [Schedule Q(n) encode] [Submit Q(n)]
+
+GPU Command Buffers (Q = quantum):
+  Q(n-2): | encode |──── compute (voices) ───| mix | signal E(n-2) |
+  Q(n-1):          | encode |──── compute (voices) ───| mix | signal E(n-1) |
+  Q(n):                       | encode |──── compute (voices) ───| mix | signal E(n) |
+
+Events (UMP):
+  Deliver UMP for Q(n) before encoding Q(n) kernels (sample-accurate offsets).
+```
 
 ## 5) Headless Determinism & Artifacts
 
@@ -171,4 +201,3 @@ Phase 3 (Regression + CI)
 - GPU memory: ring buffers for constants/audio; avoid heap churn; reuse command buffers.
 - Testing: unit tests for event scheduling; integration tests comparing UMP sequences.
 - Diagnostics: expose internal counters (missed deadlines, buffer underruns, GPU durations).
-
