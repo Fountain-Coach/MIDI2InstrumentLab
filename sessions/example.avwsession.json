@@ -1,0 +1,29 @@
+{
+  "schema": "avw.session.v0",
+  "meta": {
+    "name": "Example Session",
+    "created": "2025-01-01T00:00:00Z"
+  },
+  "transport": { "bpm": 120, "meter": "4/4", "loop": true, "loopStart": 0.0, "loopEnd": 4.0 },
+  "tracks": [
+    {
+      "id": "t1",
+      "name": "Instrument 1",
+      "instrument": { "kind": "midi2-internal", "engine": "default", "params": {} },
+      "clips": [
+        {
+          "id": "c1",
+          "start": 0.0,
+          "length": 4.0,
+          "notes": [
+            { "time": 0.0, "pitch": 60, "velocity": 96, "length": 0.5 },
+            { "time": 1.0, "pitch": 64, "velocity": 96, "length": 0.5 },
+            { "time": 2.0, "pitch": 67, "velocity": 96, "length": 0.5 },
+            { "time": 3.0, "pitch": 72, "velocity": 96, "length": 0.5 }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

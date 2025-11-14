@@ -9,3 +9,8 @@ Quick Links
 - Spec + Requirements + Roadmap: `docs/Spec-Requirements-Roadmap.md`
 - Kickoff Brief: `docs/Kickoff-Brief.md`
 
+Solo Quickstart
+- Read the spec: `docs/Spec-Requirements-Roadmap.md`
+- Create your first session stub: `cp sessions/example.avwsession.json my-first.avwsession.json`
+- Run headless (placeholder): `bash scripts/headless-run --session my-first.avwsession.json`
+

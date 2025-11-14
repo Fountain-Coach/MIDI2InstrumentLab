@@ -27,15 +27,8 @@
  - `.github/workflows/ci.yml` — minimal CI sanity (swift toolchain presence).
  - `.gitignore` — Swift/Xcode/macOS ignores.
  
- Next steps (initial milestones)
- 1) MVP: single track transport + MIDI 2.0 inspector; basic clip playback; session save/load; headless run with UMP export.
- 2) Routing + automation: multi‑track, effect slots, parameter record/playback; per‑note lanes.
- 3) Regression + CI: headless scenario runner, artifact diff (UMP/NDJSON), example test suites.
- 
- Ownership
- - Tech Lead: architecture, guardrails, determinism
- - Engine Lead: scheduling, UMP recorder, audio graph
- - UI: SwiftUI panes (inspector, clips, logs, routing)
- - AU Integration: AUv3 load/state/params
- - QA/Automation: scripted scenarios + CI
+Next steps (solo milestones)
+1) MVP: single track transport + MIDI 2.0 inspector; basic clip playback; session save/load; headless run with UMP export.
+2) Routing + automation: multi‑track, effect slots, parameter record/playback; per‑note lanes.
+3) Regression + CI: headless scenario runner, artifact diff (UMP/NDJSON), example test suites.
  

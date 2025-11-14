@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Placeholder headless runner for MIDI2InstrumentLab
+# Usage: scripts/headless-run --session <file.avwsession.json> [--out Artifacts]
+
+OUT_DIR="Artifacts"
+SESSION=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --session) SESSION="${2:-}"; shift 2;;
+    --out) OUT_DIR="${2:-Artifacts}"; shift 2;;
+    -h|--help) echo "Usage: $0 --session <file.avwsession.json> [--out Artifacts]"; exit 0;;
+    *) echo "Unknown arg: $1" >&2; exit 2;;
+  esac
+done
+
+if [[ -z "$SESSION" ]]; then
+  echo "error: --session is required" >&2
+  exit 2
+fi
+if [[ ! -f "$SESSION" ]]; then
+  echo "error: session not found: $SESSION" >&2
+  exit 2
+fi
+
+mkdir -p "$OUT_DIR"
+STAMP=$(date +%Y%m%d-%H%M%S)
+RUN_DIR="$OUT_DIR/run-$STAMP"
+mkdir -p "$RUN_DIR"
+
+echo "[headless] loading session: $SESSION"
+
+# Very light validate: ensure schema and tracks exist
+if ! grep -q '"schema"' "$SESSION" || ! grep -q '"tracks"' "$SESSION"; then
+  echo "[headless] WARN: session missing expected fields; continuing (placeholder)" >&2
+fi
+
+# Placeholder artifacts
+cp "$SESSION" "$RUN_DIR/session.snapshot.json"
+echo "{\"events\":[{\"ts\":0,\"type\":\"transport.start\"},{\"ts\":0,\"type\":\"note.on\",\"pitch\":60}] }" > "$RUN_DIR/events.ndjson"
+echo "f0 7e 7f 0d ... f7" > "$RUN_DIR/ump.ndjson"
+
+cat > "$RUN_DIR/run.log" <<EOF
+[headless] MIDI2InstrumentLab placeholder runner
+[headless] session: $SESSION
+[headless] artifacts: $RUN_DIR
+EOF
+
+echo "[headless] done → $RUN_DIR"
+
