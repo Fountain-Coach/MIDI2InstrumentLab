@@ -65,13 +65,45 @@ enum LabRunnerMain {
         var ev = ""
         for e in events { if let d = try? JSONSerialization.data(withJSONObject: e), let s = String(data: d, encoding: .utf8) { ev.append(s + "\n") } }
         try ev.data(using: .utf8)?.write(to: evURL)
-        // Simple UMP snapshot placeholder
+        // Emit a simple UMP-like NDJSON (structured, not raw words) for determinism
+        // We represent Note On/Off as JSON lines with group/ch and 16-bit velocity approximation.
         let umpURL = outURL.appendingPathComponent("ump.ndjson")
-        try "[]\n".data(using: .utf8)?.write(to: umpURL)
+        var umpOut = ""
+        let group = 0, ch = 0
+        for e in events {
+            guard let ts = e["ts"] as? Double, let type = e["type"] as? String else { continue }
+            if type == "note.on" {
+                let pitch = e["pitch"] as? Int ?? 60
+                let vel7 =  (e["velocity"] as? Int) ?? 96
+                let vel16 = vel7 * 0x202 // map 7-bit to ~16-bit range
+                let obj: [String: Any] = [
+                    "ts": ts,
+                    "mt": 2,
+                    "group": group,
+                    "status": "noteOn",
+                    "ch": ch,
+                    "note": pitch,
+                    "vel16": vel16
+                ]
+                if let d = try? JSONSerialization.data(withJSONObject: obj), let s = String(data: d, encoding: .utf8) { umpOut.append(s + "\n") }
+            } else if type == "note.off" {
+                let pitch = e["pitch"] as? Int ?? 60
+                let obj: [String: Any] = [
+                    "ts": ts,
+                    "mt": 2,
+                    "group": group,
+                    "status": "noteOff",
+                    "ch": ch,
+                    "note": pitch,
+                    "vel16": 0
+                ]
+                if let d = try? JSONSerialization.data(withJSONObject: obj), let s = String(data: d, encoding: .utf8) { umpOut.append(s + "\n") }
+            }
+        }
+        try umpOut.data(using: .utf8)?.write(to: umpURL)
         // Runner log
         let logURL = outURL.appendingPathComponent("run.log")
         try "lab-runner ok\n".data(using: .utf8)?.write(to: logURL)
         print("ok")
     }
 }
-

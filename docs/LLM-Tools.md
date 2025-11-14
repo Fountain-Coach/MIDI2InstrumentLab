@@ -5,8 +5,8 @@ Purpose
 
 Canonical Tools (initial)
 - `list-au-parameters` — enumerate AU params, ranges, units.
-- `generate-openapi` — synthesize OpenAPI from a param/method map.
-- `openapi-to-facts` — produce PE facts; return JSON; optionally seed.
+- `generate-openapi` — synthesize OpenAPI (proposal). Facts generation is delegated to Tools Factory.
+- `tools-factory.facts-from-openapi` — call Tools Factory `POST /agent-facts/from-openapi` to generate/seed Facts.
 - `secrets-missing` — compare descriptor.authHeaders vs SecretStore; return missing.
 - `apply-patch` — apply a patch file to a working tree.
 - `build-target` — compile a specific target; return build log.
@@ -25,4 +25,3 @@ Security
 - Never echo secrets. Tools that require headers should read from a secure store only.
 
 This repo ships placeholders only. Wire real commands when integrating with your engine/host.
-

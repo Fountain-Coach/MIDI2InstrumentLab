@@ -7,12 +7,12 @@
  - No generated code in the repo; clients can be generated downstream.
  - Treat the spec as part of the contract; PRs update the spec first, then code.
  
- Surface (v1 summary)
- - Health: `GET /health` → 200 ok
- - Sessions: `POST /sessions`, `GET/PUT/DELETE /sessions/{id}`
- - Runs (headless): `POST /runs`, `GET /runs/{id}`, `GET /runs/{id}/artifacts`, `GET /runs/{id}/artifacts/{name}`
- - Introspection: `POST /introspect/au` → AU parameters
- - Mapping: `POST /mapping/generate` → propose OpenAPI + Facts (helper)
+Surface (v1 summary)
+- Health: `GET /health` → 200 ok
+- Sessions: `POST /sessions`, `GET/PUT/DELETE /sessions/{id}`
+- Runs (headless): `POST /runs`, `GET /runs/{id}`, `GET /runs/{id}/artifacts`, `GET /runs/{id}/artifacts/{name}`
+- Introspection: `POST /introspect/au` → AU parameters
+- Mapping: kept in Tools Factory (canonical). Use its `POST /agent-facts/from-openapi` to generate/seed Facts from curated specs.
  
  Notes
  - Session schema v0 is intentionally minimal but concrete (see `components.schemas.Session`). It will evolve; clients should be tolerant to additional fields.

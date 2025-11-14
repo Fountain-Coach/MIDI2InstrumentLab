@@ -2,7 +2,7 @@
   "tools": [
     { "name": "list-au-parameters", "command": "echo '{\"ok\":true,\"params\":[{\"id\":1,\"name\":\"Gain\",\"min\":0,\"max\":1}]}'", "input": "json", "output": "json" },
     { "name": "generate-openapi", "command": "echo '{\"ok\":true,\"openapi\":{}}'", "input": "json", "output": "json" },
-    { "name": "openapi-to-facts", "command": "echo '{\"ok\":true,\"facts\":{}}'", "input": "json", "output": "json" },
+    { "name": "tools-factory.facts-from-openapi", "command": "echo '{\"ok\":true,\"seeded\":true}'", "input": "json", "output": "json" },
     { "name": "secrets-missing", "command": "echo '{\"ok\":true,\"required\":[\"Authorization\"],\"missing\":[\"Authorization\"]}'", "input": "json", "output": "json" },
     { "name": "apply-patch", "command": "git apply -p0 -v -", "input": "text", "output": "text" },
     { "name": "build-target", "command": "echo '{\"ok\":true,\"product\":\"avw\"}'", "input": "json", "output": "json" },
@@ -10,4 +10,3 @@
     { "name": "artifact-diff", "command": "echo '{\"ok\":true,\"diff\":[]}'", "input": "json", "output": "json" }
   ]
 }
-

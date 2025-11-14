@@ -217,41 +217,6 @@ paths:
                     type: array
                     items: { $ref: '#/components/schemas/AUParameter' }
         '400': { $ref: '#/components/responses/Problem400' }
-  /mapping/generate:
-    post:
-      tags: [mapping]
-      summary: Propose OpenAPI + Facts from AU parameters or a mapping sketch
-      operationId: mappingGenerate
-      x-fountain.allow-as-tool: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                agentId: { type: string, description: 'fountain.coach/agent/<name>/service' }
-                parameters:
-                  type: array
-                  items: { $ref: '#/components/schemas/AUParameter' }
-                strategy: { type: string, description: 'Mapping hint (e.g., direct, normalized)' }
-            examples:
-              simple:
-                value:
-                  agentId: fountain.coach/agent/mpe-synth/service
-                  parameters: [ { id: 1, name: Gain, min: 0, max: 1 } ]
-                  strategy: direct
-      responses:
-        '200':
-          description: Proposed mapping
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  openapi: { type: object, description: 'OpenAPI document (object form)' }
-                  facts: { type: object, description: 'Generated PE facts' }
-        '400': { $ref: '#/components/responses/Problem400' }
 
 components:
   schemas:

@@ -216,10 +216,7 @@ final class HTTPHandler: ChannelInboundHandler {
             // Stub: return one fake parameter for now
             return writeJSON(context: context, status: .ok, obj: ["items": [["id": 1, "name": "Gain", "min": 0, "max": 1]]])
         }
-        if method == .POST && path == "/mapping/generate" {
-            // Stub: echo back an empty mapping
-            return writeJSON(context: context, status: .ok, obj: ["openapi": [:], "facts": [:]])
-        }
+        // Mapping generation lives in Tools Factory; Lab does not implement it.
 
         writeJSON(context: context, status: .notFound, obj: problem(404, "not found"))
     }
