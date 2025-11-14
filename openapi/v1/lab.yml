@@ -19,6 +19,8 @@ paths:
     get:
       tags: [health]
       summary: Liveness probe
+      operationId: health
+      x-fountain.allow-as-tool: true
       responses:
         '200':
           description: ok
@@ -29,17 +31,25 @@ paths:
     post:
       tags: [sessions]
       summary: Create a session
+      operationId: sessionsCreate
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: '#/components/schemas/Session' }
+            examples:
+              minimal:
+                value:
+                  schema: avw.session.v0
+                  transport: { bpm: 120, meter: '4/4', loop: true, loopStart: 0, loopEnd: 4 }
+                  tracks: [ { id: t1, instrument: { kind: midi2-internal }, clips: [] } ]
       responses:
         '201':
           description: Created
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SessionRef' }
+        '400': { $ref: '#/components/responses/Problem400' }
   /sessions/{id}:
     parameters:
       - in: path
@@ -49,16 +59,18 @@ paths:
     get:
       tags: [sessions]
       summary: Get a session
+      operationId: sessionsGet
       responses:
         '200':
           description: Session
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Session' }
-        '404': { description: Not found }
+        '404': { $ref: '#/components/responses/Problem404' }
     put:
       tags: [sessions]
       summary: Replace a session
+      operationId: sessionsPut
       requestBody:
         required: true
         content:
@@ -66,17 +78,21 @@ paths:
             schema: { $ref: '#/components/schemas/Session' }
       responses:
         '204': { description: Updated }
-        '404': { description: Not found }
+        '400': { $ref: '#/components/responses/Problem400' }
+        '404': { $ref: '#/components/responses/Problem404' }
     delete:
       tags: [sessions]
       summary: Delete a session
+      operationId: sessionsDelete
       responses:
         '204': { description: Deleted }
-        '404': { description: Not found }
+        '404': { $ref: '#/components/responses/Problem404' }
   /runs:
     post:
       tags: [runs]
       summary: Start a headless run
+      operationId: runsStart
+      x-fountain.allow-as-tool: true
       requestBody:
         required: true
         content:
@@ -90,12 +106,22 @@ paths:
               oneOf:
                 - required: [sessionId]
                 - required: [session]
+            examples:
+              byId:
+                value: { sessionId: 'abc123' }
+              inline:
+                value:
+                  session:
+                    schema: avw.session.v0
+                    transport: { bpm: 120, meter: '4/4' }
+                    tracks: [ { id: t1, instrument: { kind: midi2-internal }, clips: [] } ]
       responses:
         '202':
           description: Accepted
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Run' }
+        '400': { $ref: '#/components/responses/Problem400' }
   /runs/{id}:
     parameters:
       - in: path
@@ -105,13 +131,15 @@ paths:
     get:
       tags: [runs]
       summary: Get run status
+      operationId: runsGet
+      x-fountain.allow-as-tool: true
       responses:
         '200':
           description: Run
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Run' }
-        '404': { description: Not found }
+        '404': { $ref: '#/components/responses/Problem404' }
   /runs/{id}/artifacts:
     parameters:
       - in: path
@@ -121,6 +149,8 @@ paths:
     get:
       tags: [artifacts]
       summary: List artifacts for a run
+      operationId: artifactsList
+      x-fountain.allow-as-tool: true
       responses:
         '200':
           description: Artifacts
@@ -132,6 +162,7 @@ paths:
                   items:
                     type: array
                     items: { $ref: '#/components/schemas/Artifact' }
+        '404': { $ref: '#/components/responses/Problem404' }
   /runs/{id}/artifacts/{name}:
     parameters:
       - in: path
@@ -145,6 +176,8 @@ paths:
     get:
       tags: [artifacts]
       summary: Fetch artifact content
+      operationId: artifactsGet
+      x-fountain.allow-as-tool: true
       responses:
         '200':
           description: Artifact content (text or binary)
@@ -153,11 +186,13 @@ paths:
               schema: { type: string, format: binary }
             text/plain:
               schema: { type: string }
-        '404': { description: Not found }
+        '404': { $ref: '#/components/responses/Problem404' }
   /introspect/au:
     post:
       tags: [introspection]
       summary: Introspect an AU and list parameters
+      operationId: introspectAU
+      x-fountain.allow-as-tool: true
       requestBody:
         required: true
         content:
@@ -168,6 +203,8 @@ paths:
               properties:
                 identifier: { type: string, description: 'Bundle identifier or component string' }
                 scope: { type: string, description: 'instrument|effect', enum: [instrument, effect] }
+            examples:
+              byId: { value: { identifier: 'com.vendor.plugin.Instrument', scope: instrument } }
       responses:
         '200':
           description: Parameters
@@ -179,10 +216,13 @@ paths:
                   items:
                     type: array
                     items: { $ref: '#/components/schemas/AUParameter' }
+        '400': { $ref: '#/components/responses/Problem400' }
   /mapping/generate:
     post:
       tags: [mapping]
       summary: Propose OpenAPI + Facts from AU parameters or a mapping sketch
+      operationId: mappingGenerate
+      x-fountain.allow-as-tool: true
       requestBody:
         required: true
         content:
@@ -195,6 +235,12 @@ paths:
                   type: array
                   items: { $ref: '#/components/schemas/AUParameter' }
                 strategy: { type: string, description: 'Mapping hint (e.g., direct, normalized)' }
+            examples:
+              simple:
+                value:
+                  agentId: fountain.coach/agent/mpe-synth/service
+                  parameters: [ { id: 1, name: Gain, min: 0, max: 1 } ]
+                  strategy: direct
       responses:
         '200':
           description: Proposed mapping
@@ -205,9 +251,20 @@ paths:
                 properties:
                   openapi: { type: object, description: 'OpenAPI document (object form)' }
                   facts: { type: object, description: 'Generated PE facts' }
+        '400': { $ref: '#/components/responses/Problem400' }
 
 components:
   schemas:
+    Problem:
+      type: object
+      description: RFC 7807 Problem Details
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+      required: [title, status]
     SessionRef:
       type: object
       properties:
@@ -289,4 +346,14 @@ components:
         unit: { type: string, nullable: true }
         default: { type: number, nullable: true }
       required: [id, name, min, max]
-
+  responses:
+    Problem400:
+      description: Bad Request
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Problem404:
+      description: Not Found
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
