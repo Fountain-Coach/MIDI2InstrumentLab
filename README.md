@@ -91,3 +91,4 @@ Quick Links
 - LLM Adapter: `docs/LLM-Adapter.md`
 - LLM Tools: `docs/LLM-Tools.md`
 - HTTP API (OpenAPI): `openapi/v1/lab.yml` (see `docs/API.md`)
+- Architecture Whitepaper: `Design/ARCHITECTURE.md`
