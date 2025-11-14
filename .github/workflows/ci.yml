@@ -1,0 +1,21 @@
+name: CI
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  sanity:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Lint structure
+        run: |
+          test -f AGENTS.md
+          test -f README.md
+          test -d docs
+          test -f docs/Full-Context-Report.md
+          test -f docs/Spec-Requirements-Roadmap.md
+          test -f docs/Kickoff-Brief.md

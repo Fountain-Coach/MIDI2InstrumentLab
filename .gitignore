@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Xcode / Derived
+DerivedData/
+*.xcworkspace/
+*.xcodeproj/
+xcuserdata/
+
+# SwiftPM
+.build/
+.swiftpm/
+Package.resolved
+
+# Logs / Artifacts
+*.log
+*.ndjson
+Artifacts/
+
