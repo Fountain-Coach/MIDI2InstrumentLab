@@ -17,3 +17,5 @@ Package.resolved
 *.ndjson
 Artifacts/
 
+# LLM local config (do not commit secrets)
+llm/config/

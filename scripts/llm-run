@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Orchestrate a minimal LLM call and show tool manifest (placeholder).
+# Usage: scripts/llm-run --adapter echo|ollama|openai [-p PROMPT | --prompt-file FILE]
+
+ADAPTER="echo"
+PROMPT=""
+PROMPT_FILE=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --adapter) ADAPTER="${2:-$ADAPTER}"; shift 2;;
+    -p|--prompt) PROMPT="${2:-}"; shift 2;;
+    --prompt-file) PROMPT_FILE="${2:-}"; shift 2;;
+    -h|--help) echo "Usage: $0 --adapter echo|ollama|openai [-p PROMPT | --prompt-file FILE]"; exit 0;;
+    *) echo "Unknown arg: $1" >&2; exit 2;;
+  esac
+done
+
+[[ -n "$PROMPT_FILE" ]] && PROMPT="$(cat "$PROMPT_FILE")"
+if [[ -z "$PROMPT" ]]; then
+  PROMPT="Wrap this AU into a MIDI2 instrument with PE mapping and tests."
+fi
+
+case "$ADAPTER" in
+  echo)   bash llm/adapters/echo.sh --prompt "$PROMPT" ;;
+  ollama) bash llm/adapters/ollama.sh --prompt "$PROMPT" ;;
+  openai) bash llm/adapters/openai.sh --prompt "$PROMPT" ;;
+  *) echo "Unknown adapter: $ADAPTER" >&2; exit 2;;
+esac
+
+echo "--- tools manifest ---"
+cat llm/tools/manifest.json
+
