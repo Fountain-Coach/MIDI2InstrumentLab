@@ -1,0 +1,19 @@
+{
+  "protocol": "midi-ci-pe",
+  "functionBlocks": [
+    {
+      "name": "MIDI2InstrumentLab",
+      "group": 0,
+      "properties": [
+        { "id": "health", "type": "json", "readable": true, "mapsTo": { "openapi": { "method": "GET", "path": "/health" } } },
+        { "id": "runs.start", "type": "json", "writable": true, "mapsTo": { "openapi": { "method": "POST", "path": "/runs", "body": "json" } }, "descriptor": { "request": { "schema": { "type": "object", "properties": { "sessionId": { "type": "string" }, "session": { "type": "object" } }, "required": [] } } } },
+        { "id": "runs.get", "type": "json", "readable": true, "mapsTo": { "openapi": { "method": "GET", "path": "/runs/{id}" } }, "descriptor": { "params": { "path": [ { "name": "id", "type": "string", "required": true } ] } } },
+        { "id": "artifacts.list", "type": "json", "readable": true, "mapsTo": { "openapi": { "method": "GET", "path": "/runs/{id}/artifacts" } }, "descriptor": { "params": { "path": [ { "name": "id", "type": "string", "required": true } ] } } },
+        { "id": "artifacts.get", "type": "json", "readable": true, "mapsTo": { "openapi": { "method": "GET", "path": "/runs/{id}/artifacts/{name}" } }, "descriptor": { "params": { "path": [ { "name": "id", "type": "string", "required": true }, { "name": "name", "type": "string", "required": true } ] } } },
+        { "id": "introspect.au", "type": "json", "writable": true, "mapsTo": { "openapi": { "method": "POST", "path": "/introspect/au", "body": "json" } }, "descriptor": { "request": { "schema": { "type": "object", "required": ["identifier"], "properties": { "identifier": { "type": "string" }, "scope": { "type": "string" } } } } } },
+        { "id": "mapping.generate", "type": "json", "writable": true, "mapsTo": { "openapi": { "method": "POST", "path": "/mapping/generate", "body": "json" } }, "descriptor": { "request": { "schema": { "type": "object", "properties": { "agentId": { "type": "string" }, "parameters": { "type": "array" } } } } } }
+      ]
+    }
+  ]
+}
+

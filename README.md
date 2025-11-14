@@ -92,4 +92,5 @@ Quick Links
 - LLM Tools: `docs/LLM-Tools.md`
 - HTTP API (OpenAPI): `openapi/v1/lab.yml` (see `docs/API.md`)
 - Architecture Whitepaper: `Design/ARCHITECTURE.md`
- - Graph Model: `Design/GRAPH_MODEL.md`
+- Graph Model: `Design/GRAPH_MODEL.md`
+ - Discoverability (Facts/Host): `docs/Discoverability.md`

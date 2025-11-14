@@ -19,3 +19,10 @@ jobs:
           test -f docs/Full-Context-Report.md
           test -f docs/Spec-Requirements-Roadmap.md
           test -f docs/Kickoff-Brief.md
+      - name: Lint OpenAPI (Redocly)
+        run: npx --yes @redocly/cli@latest lint openapi/v1/lab.yml
+      - name: Validate Facts JSON (if present)
+        run: |
+          if [ -f facts/lab.facts.json ]; then
+            node -e 'JSON.parse(require("fs").readFileSync("facts/lab.facts.json","utf8"))'
+          fi
