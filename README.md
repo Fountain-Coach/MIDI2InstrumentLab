@@ -10,6 +10,7 @@ Quick Links
 - Kickoff Brief: `docs/Kickoff-Brief.md`
 - LLM Adapter: `docs/LLM-Adapter.md`
 - LLM Tools: `docs/LLM-Tools.md`
+- HTTP API (OpenAPI): `openapi/v1/lab.yml` (see `docs/API.md`)
 
 Solo Quickstart
 - Read the spec: `docs/Spec-Requirements-Roadmap.md`

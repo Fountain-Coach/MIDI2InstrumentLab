@@ -1,0 +1,292 @@
+openapi: 3.0.3
+info:
+  title: MIDI2InstrumentLab API
+  version: 1.0.0
+  description: >-
+    Slim A/V Workbench service API for sessions, headless runs, artifacts, AU introspection,
+    and mapping helpers. Session schema v0 is intentionally minimal and will evolve.
+servers:
+  - url: /
+tags:
+  - name: health
+  - name: sessions
+  - name: runs
+  - name: artifacts
+  - name: introspection
+  - name: mapping
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Liveness probe
+      responses:
+        '200':
+          description: ok
+          content:
+            text/plain:
+              schema: { type: string, example: ok }
+  /sessions:
+    post:
+      tags: [sessions]
+      summary: Create a session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Session' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessionRef' }
+  /sessions/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    get:
+      tags: [sessions]
+      summary: Get a session
+      responses:
+        '200':
+          description: Session
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '404': { description: Not found }
+    put:
+      tags: [sessions]
+      summary: Replace a session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Session' }
+      responses:
+        '204': { description: Updated }
+        '404': { description: Not found }
+    delete:
+      tags: [sessions]
+      summary: Delete a session
+      responses:
+        '204': { description: Deleted }
+        '404': { description: Not found }
+  /runs:
+    post:
+      tags: [runs]
+      summary: Start a headless run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionId: { type: string, description: 'Use an existing session id' }
+                session: { $ref: '#/components/schemas/Session' }
+                ttlSecs: { type: integer, minimum: 0 }
+              oneOf:
+                - required: [sessionId]
+                - required: [session]
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Run' }
+  /runs/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    get:
+      tags: [runs]
+      summary: Get run status
+      responses:
+        '200':
+          description: Run
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Run' }
+        '404': { description: Not found }
+  /runs/{id}/artifacts:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    get:
+      tags: [artifacts]
+      summary: List artifacts for a run
+      responses:
+        '200':
+          description: Artifacts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Artifact' }
+  /runs/{id}/artifacts/{name}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+      - in: path
+        name: name
+        required: true
+        schema: { type: string }
+    get:
+      tags: [artifacts]
+      summary: Fetch artifact content
+      responses:
+        '200':
+          description: Artifact content (text or binary)
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+            text/plain:
+              schema: { type: string }
+        '404': { description: Not found }
+  /introspect/au:
+    post:
+      tags: [introspection]
+      summary: Introspect an AU and list parameters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier]
+              properties:
+                identifier: { type: string, description: 'Bundle identifier or component string' }
+                scope: { type: string, description: 'instrument|effect', enum: [instrument, effect] }
+      responses:
+        '200':
+          description: Parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/AUParameter' }
+  /mapping/generate:
+    post:
+      tags: [mapping]
+      summary: Propose OpenAPI + Facts from AU parameters or a mapping sketch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                agentId: { type: string, description: 'fountain.coach/agent/<name>/service' }
+                parameters:
+                  type: array
+                  items: { $ref: '#/components/schemas/AUParameter' }
+                strategy: { type: string, description: 'Mapping hint (e.g., direct, normalized)' }
+      responses:
+        '200':
+          description: Proposed mapping
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  openapi: { type: object, description: 'OpenAPI document (object form)' }
+                  facts: { type: object, description: 'Generated PE facts' }
+
+components:
+  schemas:
+    SessionRef:
+      type: object
+      properties:
+        id: { type: string }
+      required: [id]
+    Session:
+      type: object
+      description: Minimal session schema (v0). Evolves over time; clients should tolerate extra fields.
+      properties:
+        schema: { type: string, example: avw.session.v0 }
+        meta:
+          type: object
+          additionalProperties: true
+        transport:
+          type: object
+          properties:
+            bpm: { type: number, example: 120 }
+            meter: { type: string, example: '4/4' }
+            loop: { type: boolean, default: true }
+            loopStart: { type: number, example: 0.0 }
+            loopEnd: { type: number, example: 4.0 }
+          required: [bpm, meter]
+        tracks:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              instrument: { type: object, additionalProperties: true }
+              clips:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string }
+                    start: { type: number }
+                    length: { type: number }
+                    notes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          time: { type: number }
+                          pitch: { type: integer }
+                          velocity: { type: integer }
+                          length: { type: number }
+                        required: [time, pitch]
+                  required: [id, start, length]
+            required: [id, instrument]
+      required: [schema, transport, tracks]
+      additionalProperties: true
+    Run:
+      type: object
+      properties:
+        id: { type: string }
+        status: { type: string, enum: [queued, running, succeeded, failed] }
+        createdAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time, nullable: true }
+        artifacts:
+          type: array
+          items: { $ref: '#/components/schemas/Artifact' }
+      required: [id, status, createdAt]
+    Artifact:
+      type: object
+      properties:
+        name: { type: string }
+        contentType: { type: string }
+        size: { type: integer, format: int64 }
+        href: { type: string }
+      required: [name]
+    AUParameter:
+      type: object
+      properties:
+        id: { type: integer, description: 'AU param identifier' }
+        name: { type: string }
+        min: { type: number }
+        max: { type: number }
+        unit: { type: string, nullable: true }
+        default: { type: number, nullable: true }
+      required: [id, name, min, max]
+
